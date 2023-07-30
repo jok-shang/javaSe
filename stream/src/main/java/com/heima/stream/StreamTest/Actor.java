@@ -1,4 +1,4 @@
-package com.java.stream.StreamTest;
+package com.heima.stream.StreamTest;
 
 /**
  * @Author 尚智江

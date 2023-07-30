@@ -1,4 +1,4 @@
-package com.java.stream.不可变集合;
+package com.heima.stream.不可变集合;
 
 import java.util.Iterator;
 import java.util.Set;

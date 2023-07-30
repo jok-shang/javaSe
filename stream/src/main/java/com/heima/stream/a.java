@@ -1,4 +1,4 @@
-package com.java.stream;
+package com.heima.stream;
 
 /**
  * @Author 尚智江

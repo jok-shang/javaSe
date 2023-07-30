@@ -1,4 +1,4 @@
-package com.java.stream.stream;
+package com.heima.stream.stream;
 
 import java.util.ArrayList;
 import java.util.List;

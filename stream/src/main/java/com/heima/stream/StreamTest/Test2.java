@@ -1,4 +1,4 @@
-package com.java.stream.StreamTest;
+package com.heima.stream.StreamTest;
 
 import java.util.ArrayList;
 import java.util.Collections;
