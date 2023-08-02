@@ -1,5 +1,5 @@
 # javaSe
-# 链接： 
+# 好的文章链接： 
 - <a href="https://blog.csdn.net/zxl646801924/article/details/90374320">Stream教程</a>
 - 
 ## Stream流的中间方法
