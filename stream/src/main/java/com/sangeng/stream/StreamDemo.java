@@ -1,10 +1,8 @@
 package com.sangeng.stream;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @Author 尚智江
@@ -13,9 +11,94 @@ import java.util.stream.Collectors;
  */
 public class StreamDemo {
     public static void main(String[] args) {
+
+        test08();
+        /*// 对流中的元素按照年龄进行降序排序，并且要求不能有重复的元素
+        test07();*/
+        /*// 打印所有作家的姓名，并且要求其中不能有重复元素
+        test06();*/
+        /*// 打印所有作家的姓名
+        test05();*/
+        /*
+        // 打印所有姓名长度大于1的作家姓名
+        test04();
+        */
+        /*
+        // 双列集合转换
+        test03();
+        */
+        /*        
+        //数组操作
+        test02();
+        */
+        /*
+        // 打印所有年龄小于18的作家的名字，并且去重
         test01();
+        */
 
 
+    }
+
+    //对流中的元素按照年龄进行降序排序，并且要求不能有重复的元素，然后打印其中年龄最大的两个作家的姓名
+    private static void test08() {
+        List<Author> authors = getAuthors();
+        authors.stream()
+                .distinct()
+                .sorted(Comparator.comparing(Author::getAge).reversed())
+                .limit(2)
+                .forEach(s -> System.out.println(s.getName()));
+    }
+
+    // 对流中的元素按照年龄进行降序排序，并且要求不能有重复的元素
+    private static void test07() {
+        List<Author> authors = getAuthors();
+        authors.stream()
+                .distinct()
+                .sorted(Comparator.comparing(Author::getAge).reversed())
+                .forEach(s -> System.out.println(s.getName()));
+    }
+
+    // 打印所有作家的姓名，并且要求其中不能有重复元素
+    private static void test06() {
+        List<Author> authors = getAuthors();
+        authors.stream()
+                .distinct()
+                .forEach(s -> System.out.println(s.getName()));
+    }
+
+    // 打印所有作家的姓名
+    private static void test05() {
+        List<Author> authors = getAuthors();
+        authors.stream()
+                .map(Author::getName)
+                .forEach(System.out::println);
+    }
+
+    // 打印所有姓名长度大于1的作家姓名
+    private static void test04() {
+        List<Author> authors = getAuthors();
+        authors.stream()
+                .filter(s -> s.getName().length() > 1)
+                .forEach(s -> System.out.println(s.getName()));
+    }
+
+    // 双列集合转换
+    private static void test03() {
+        Map<String,Integer> map = new HashMap<>();
+        map.put("蜡笔小新",19);
+        map.put("黑子",17);
+        map.put("襄阳",20);
+        Set<Map.Entry<String, Integer>> entrySet = map.entrySet();
+        Stream<Map.Entry<String, Integer>> stream = entrySet.stream();
+        stream.filter(s -> s.getValue() > 17).forEach(System.out::println);
+    }
+
+    //数组操作
+    private static void test02() {
+        Integer[] arr = {1,2,3,4,5};
+//        Stream<Integer> stream = Arrays.stream(arr);
+        Stream<Integer> stream = Stream.of(arr);
+        stream.distinct().forEach(System.out::println);
     }
 
     private static void test01() {
