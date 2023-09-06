@@ -12,7 +12,14 @@ import java.util.stream.Stream;
 public class StreamDemo {
     public static void main(String[] args) {
 
-        test08();
+        // 打印现有数据的所有分类，要求对重复的元素进行去重。
+        test11();
+        /*//打印所有书籍的名字，要求对重复的元素进行去重
+        test10();*/
+/*        // 打印除了年龄最大的作家外的其他作家，要求不能有重复元素，并且按照年龄降序排序
+        test09();*/
+   /*     //对流中的元素按照年龄进行降序排序，并且要求不能有重复的元素，然后打印其中年龄最大的两个作家的姓名
+        test08();*/
         /*// 对流中的元素按照年龄进行降序排序，并且要求不能有重复的元素
         test07();*/
         /*// 打印所有作家的姓名，并且要求其中不能有重复元素
@@ -37,6 +44,46 @@ public class StreamDemo {
         */
 
 
+    }
+
+    // 打印现有数据的所有分类，要求对重复的元素进行去重。
+    private static void test11() {
+        List<Author> authors = getAuthors();
+        // 使用流处理作者列表
+        authors.stream()
+                // 将每个作者的书籍流扁平化为单一流
+                .flatMap(author -> author.getBooks()
+                        .stream())
+                // 对书籍进行去重，确保每本书只被处理一次
+                .distinct()
+                // 将书籍的分类字符串拆分成多个分类，并将其扁平化为单一流
+                .flatMap(book -> Arrays.stream(book.getCategory().split(",")))
+                // 对分类进行去重，确保每个分类只被处理一次
+                .distinct()
+                // 对每个分类执行打印操作
+                .forEach(System.out::println);
+    }
+
+    // 打印所有书籍的名字，要求对重复的元素进行去重
+    private static void test10() {
+        List<Author> authors = getAuthors();
+        authors.stream()
+                .flatMap(s -> s.getBooks()
+                        // 将实体类中集合再做流操作
+                        .stream()
+                        .map(Book::getName))
+                .distinct()
+                .forEach(System.out::println);
+    }
+
+    // 打印除了年龄最大的作家外的其他作家，要求不能有重复元素，并且按照年龄降序排序
+    private static void test09() {
+        List<Author> authors = getAuthors();
+        authors.stream()
+                .distinct()
+                .sorted(Comparator.comparing(Author::getAge).reversed())
+                .skip(1)
+                .forEach(s -> System.out.println(s.getName()));
     }
 
     //对流中的元素按照年龄进行降序排序，并且要求不能有重复的元素，然后打印其中年龄最大的两个作家的姓名
