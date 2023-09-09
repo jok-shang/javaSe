@@ -235,7 +235,7 @@ List<Author> authors = getAuthors();
         System.out.println(collect);
 ```
 ## *查找与匹配*
-## allMatch
+### allMatch
     可以用来判断是否都符合匹配条件，结果为boolean类型，如果都符合结果为true，否则为false.
 
 例子： 判断是否所有的作家都是成年人
@@ -245,8 +245,8 @@ List<Author> authors = getAuthors();
                 .anyMatch(s -> s.getAge() > 18);
         System.out.println(flag);
 ```
-## *查找与匹配*
-## noneMatch
+
+### noneMatch
     可以判断流中的元素是否都不符合匹配条件，如果都不符合结果为true，否则为false
 
 例子：判断作家是否都没有超过100岁的
@@ -256,8 +256,8 @@ List<Author> authors = getAuthors();
                 .noneMatch(s -> s.getAge() > 100);
         System.out.println(b);
 ```
-## *查找与匹配*
-## findAny
+
+### findAny
     获取流中的任意一个元素，该方法没有办法保证获取的一定是流中的第一个元素
 
 例子：获取任意一个大于18的作家，如果存在就输出他的名字
@@ -269,8 +269,8 @@ List<Author> authors = getAuthors();
         // 判断是否存在 存在输出 不存在不会报空指针异常
         any.ifPresent(s -> System.out.println(s.getName()));
 ```
-## *查找与匹配*
-## findFirst
+
+### findFirst
     获取流中的第一个元素
 
 例子：获取一个年龄最小的作家，并输出他的名字
