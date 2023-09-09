@@ -1,5 +1,6 @@
 package com.sangeng.stream;
 
+import javax.sound.midi.Soundbank;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -12,13 +13,36 @@ import java.util.stream.Stream;
 public class StreamDemo {
     public static void main(String[] args) {
 
-        // 打印现有数据的所有分类，要求对重复的元素进行去重。
-        test11();
+
+        // 获取一个年龄最小的作家，并输出他的名字
+        test22();
+/*        // 获取一个年龄最小的作家，并输出他的名字
+        test21();*/
+/*        // 获取任意一个大于18的作家，如果存在就输出他的名字
+        test20();*/
+/*        // 判断作家是否都没有超过100岁的
+        test19();*/
+/*        // 判断是否所有的作家都是成年人
+        test18();*/
+/*        // 获取一个map集合，map的key为作者名，value为List<Book>
+        test17();*/
+/*        // 获取一个所有书名的Set集合
+        test16();*/
+/*        // 获取一个存放所有作者名字的List集合
+        test15();*/
+/*        // 分别获取这些作家的所出书籍的最高分和最低分并且打印
+        test14();*/
+/*//        打印这些作家的所出书籍的数目，注意删除重复元素
+        test13();*/
+/*        // 输出所有作家名字
+        test12();*/
+/*        // 打印现有数据的所有分类，要求对重复的元素进行去重。
+        test11();*/
         /*//打印所有书籍的名字，要求对重复的元素进行去重
         test10();*/
 /*        // 打印除了年龄最大的作家外的其他作家，要求不能有重复元素，并且按照年龄降序排序
         test09();*/
-   /*     //对流中的元素按照年龄进行降序排序，并且要求不能有重复的元素，然后打印其中年龄最大的两个作家的姓名
+        /*//对流中的元素按照年龄进行降序排序，并且要求不能有重复的元素，然后打印其中年龄最大的两个作家的姓名
         test08();*/
         /*// 对流中的元素按照年龄进行降序排序，并且要求不能有重复的元素
         test07();*/
@@ -44,6 +68,113 @@ public class StreamDemo {
         */
 
 
+    }
+
+    // 获取一个年龄最小的作家，并输出他的名字
+    private static void test22() {
+        List<Author> authors = getAuthors();
+        authors.stream()
+                .reduce()
+    }
+
+    // 获取一个年龄最小的作家，并输出他的名字
+    private static void test21() {
+        List<Author> authors = getAuthors();
+        Optional<Author> first = authors.stream()
+                .sorted((o1, o2) -> o1.getAge() - o2.getAge())
+                .findFirst();
+        first.ifPresent(s -> System.out.println(s.getName()));
+    }
+
+    // 获取任意一个大于18的作家，如果存在就输出他的名字
+    private static void test20() {
+        List<Author> authors = getAuthors();
+        Optional<Author> any = authors.stream()
+                .filter(s -> s.getAge() > 18)
+                .findAny();
+        // 判断是否存在 存在输出 不存在不会报空指针异常
+        any.ifPresent(s -> System.out.println(s.getName()));
+    }
+
+    // 判断作家是否都没有超过100岁的
+    private static void test19() {
+        List<Author> authors = getAuthors();
+        boolean b = authors.stream()
+                .noneMatch(s -> s.getAge() > 100);
+        System.out.println(b);
+    }
+
+    // 判断是否所有的作家都是成年人
+    private static void test18() {
+        List<Author> authors = getAuthors();
+        boolean flag = authors.stream()
+                .anyMatch(s -> s.getAge() > 18);
+        System.out.println(flag);
+    }
+
+    // 获取一个map集合，map的key为作者名，value为List<Book>
+    private static void test17() {
+        List<Author> authors = getAuthors();
+        Map<String, List<Book>> collect = authors.stream()
+                .distinct()
+                .collect(Collectors.toMap(Author::getName, Author::getBooks));
+        System.out.println(collect);
+    }
+
+    // 获取一个所有书名的Set集合
+    private static void test16() {
+        List<Author> authors = getAuthors();
+        Set<String> collect = authors.stream()
+                .flatMap(author -> author.getBooks().stream())
+                .map(Book::getName)
+                .collect(Collectors.toSet());
+        System.out.println(collect);
+    }
+
+    // 获取一个存放所有作者名字的List集合
+    private static void test15() {
+        List<Author> authors = getAuthors();
+        List<String> nameList = authors.stream()
+                .map(Author::getName)
+                .collect(Collectors.toList());
+        System.out.println(nameList);
+    }
+
+    // 分别获取这些作家的所出书籍的最高分和最低分并且打印
+    private static void test14() {
+        List<Author> authors = getAuthors();
+        Optional<Integer> max = authors.stream()
+                .flatMap(author -> author.getBooks().stream())
+                .map(Book::getScore)
+                .max((score1, score2) -> score1 - score2);
+
+        Optional<Integer> min = authors.stream()
+                .flatMap(author -> author.getBooks().stream())
+                .map(Book::getScore)
+                .min((score1, score2) -> score1 - score2);
+        System.out.println(max.get());
+        System.out.println(min.get());
+
+    }
+
+    // 打印这些作家的所出书籍的数目，注意删除重复元素
+    private static void test13() {
+        List<Author> authors = getAuthors();
+        long count = authors.stream()
+                .flatMap(author -> author.getBooks().stream())
+                .distinct()
+                .count();
+        System.out.println(count);
+
+    }
+
+    // 输出所有作家名字
+    private static void test12() {
+        List<Author> authors = getAuthors();
+        authors.stream()
+                .map(Author::getName)
+                .distinct()
+                .forEach(System.out::println);
     }
 
     // 打印现有数据的所有分类，要求对重复的元素进行去重。

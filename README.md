@@ -162,3 +162,134 @@ List<Author> authors = getAuthors();
 
 
 # 终结操作
+
+## foreach
+    对流中的元素进行遍历操作，我们通过传入的参数去指定对遍历到的元素进行什么具体的操作
+
+例子：输出所有作家的名字
+```java
+List<Author> authors = getAuthors();
+        authors.stream()
+                .map(Author::getName)
+                .distinct()
+                .forEach(System.out::println);
+```
+
+## count
+    可以用来获取当前流中元素的个数
+例子： 打印这些作家的所出书籍的数目，注意删除重复元素
+
+```java
+List<Author> authors=getAuthors();
+        long count=authors.stream()
+        .flatMap(author->author.getBooks().stream())
+        .distinct()
+        .count();
+        System.out.println(count);
+```
+
+## max&min
+    可以用来获取流中的最值
+例子：分别获取这些作家的所出书籍的最高分和最低分并且打印
+```java
+List<Author> authors=getAuthors();
+        Optional<Integer> max=authors.stream()
+        .flatMap(author->author.getBooks().stream())
+        .map(Book::getScore)
+        .max((score1,score2)->score1-score2);
+
+        Optional<Integer> min=authors.stream()
+        .flatMap(author->author.getBooks().stream())
+        .map(Book::getScore)
+        .min((score1,score2)->score1-score2);
+        System.out.println(max.get());
+        System.out.println(min.get());
+```
+
+## collect
+    把当前流转换成一个集合
+
+例子：获取一个存放所有作者名字的List集合
+```java
+List<Author> authors=getAuthors();
+        List<String> nameList=authors.stream()
+        .map(Author::getName)
+        .collect(Collectors.toList());
+        System.out.println(nameList);
+```
+获取一个所有书名的Set集合
+```java
+List<Author> authors = getAuthors();
+        Set<String> collect = authors.stream()
+                .flatMap(author -> author.getBooks().stream())
+                .map(Book::getName)
+                .collect(Collectors.toSet());
+        System.out.println(collect);
+```
+获取一个map集合，map的key为作者名，value为List<Book>
+```java
+List<Author> authors = getAuthors();
+        Map<String, List<Book>> collect = authors.stream()
+                .distinct()
+                .collect(Collectors.toMap(Author::getName, Author::getBooks));
+        System.out.println(collect);
+```
+## *查找与匹配*
+## allMatch
+    可以用来判断是否都符合匹配条件，结果为boolean类型，如果都符合结果为true，否则为false.
+
+例子： 判断是否所有的作家都是成年人
+```java
+List<Author> authors = getAuthors();
+        boolean flag = authors.stream()
+                .anyMatch(s -> s.getAge() > 18);
+        System.out.println(flag);
+```
+## *查找与匹配*
+## noneMatch
+    可以判断流中的元素是否都不符合匹配条件，如果都不符合结果为true，否则为false
+
+例子：判断作家是否都没有超过100岁的
+```java
+List<Author> authors = getAuthors();
+        boolean b = authors.stream()
+                .noneMatch(s -> s.getAge() > 100);
+        System.out.println(b);
+```
+## *查找与匹配*
+## findAny
+    获取流中的任意一个元素，该方法没有办法保证获取的一定是流中的第一个元素
+
+例子：获取任意一个大于18的作家，如果存在就输出他的名字
+```java
+List<Author> authors = getAuthors();
+        Optional<Author> any = authors.stream()
+                .filter(s -> s.getAge() > 18)
+                .findAny();
+        // 判断是否存在 存在输出 不存在不会报空指针异常
+        any.ifPresent(s -> System.out.println(s.getName()));
+```
+## *查找与匹配*
+## findFirst
+    获取流中的第一个元素
+
+例子：获取一个年龄最小的作家，并输出他的名字
+```java
+List<Author> authors = getAuthors();
+        Optional<Author> first = authors.stream()
+                .sorted((o1, o2) -> o1.getAge() - o2.getAge())
+                .findFirst();
+        first.ifPresent(s -> System.out.println(s.getName()));
+```
+## reduce 
+    对流中的数据按照你制定的计算方式计算出一个结果
+reduce的作用是把stream中的元素结合起来，我们可以传入一个初始值，她会按照我们的计算方式依次拿流中
+的元素和在初始化值的基础上进行计算，计算结果再和后面的元素计算
+```java
+// 它内部的计算方式如下
+T result = identity;
+for (T element : this stream)
+    result = accumulator.apply(result,element)
+return result;
+// 其中identity就是我们可以通过方法参数传入的初始值，accumulator的apply具体进行什么计算也是我们通过方法参数来确定的。
+```
