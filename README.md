@@ -81,7 +81,7 @@ List<Author> authors=getAuthors();
         .distinct()
         .forEach(s->System.out.println(s.getName()));
 ```
-*注意：distinct方法是依赖Object的equals方法来判断是否是相同方法的，所以需要注意重写equals方法*
+*注意：distinct方法是依赖Object的equals方法来判断是否是相同方法的，所以需要注意重写equals方法
 
 ## sorted：
     可以对流中的元素排序
