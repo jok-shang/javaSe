@@ -2,6 +2,7 @@ package com.sangeng.stream;
 
 import javax.sound.midi.Soundbank;
 import java.util.*;
+import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -14,8 +15,15 @@ public class StreamDemo {
     public static void main(String[] args) {
 
 
-        // 获取一个年龄最小的作家，并输出他的名字
-        test22();
+        // 使用reduce求所有作者中年龄的最小值
+        test26();
+/*        // 使用reduce求所有作者中年龄的最小值
+        test25();*/
+/*        // 使用reduce求所有作者中年龄的最大值
+        test24();*/
+/*        // 使用reduce求所有作者年龄的和
+        test23();*/
+        // 获取一个年龄最小的作家，并输出他的名
 /*        // 获取一个年龄最小的作家，并输出他的名字
         test21();*/
 /*        // 获取任意一个大于18的作家，如果存在就输出他的名字
@@ -70,12 +78,52 @@ public class StreamDemo {
 
     }
 
-    // 获取一个年龄最小的作家，并输出他的名字
-    private static void test22() {
+    // 使用reduce求所有作者中年龄的最小值
+    private static void test26() {
         List<Author> authors = getAuthors();
-        authors.stream()
-                .reduce()
+        Optional<Integer> minOptional = authors.stream()
+                .map(Author::getAge)
+                .reduce(new BinaryOperator<Integer>() {
+                    @Override
+                    public Integer apply(Integer result, Integer element) {
+                        return result > element ? element : result;
+                    }
+                });
+        System.out.println(minOptional.get());
     }
+
+    // 使用reduce求所有作者中年龄的最小值
+    private static void test25() {
+        List<Author> authors = getAuthors();
+        Integer reduce = authors.stream()
+                .map(Author::getAge)
+                .reduce(Integer.MAX_VALUE, (result, element) -> result > element ? element : result);
+        System.out.println(reduce);
+    }
+
+    // 使用reduce求所有作者中年龄的最大值
+    private static void test24() {
+        List<Author> authors = getAuthors();
+        Integer reduce = authors.stream()
+                .distinct()
+                .map(Author::getAge)
+                .reduce(Integer.MIN_VALUE, (result, element) -> result < element ? element : result);
+        System.out.println(reduce);
+
+    }
+
+    // 使用reduce求所有作者年龄的和
+    private static void test23() {
+        List<Author> authors = getAuthors();
+        Integer reduce = authors.stream()
+                .distinct()
+                .map(Author::getAge)
+                // result:返回值 element:循环元素
+//                .reduce(0,(result,element) -> result + element);
+                .reduce(0, Integer::sum);
+        System.out.println(reduce);
+    }
+
 
     // 获取一个年龄最小的作家，并输出他的名字
     private static void test21() {
