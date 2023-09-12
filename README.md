@@ -476,3 +476,226 @@ Optional<Author> authorOptional = getAuthorOptional();
 Optional<List<Book>> books1 = authorOptional.map(author -> author.getBooks());
 books1.ifPresent(books -> System.out.println(books));
 ```
+# 函数式接口
+## 常用的默认方法
+### and 
+  我们在使用`Predicate`接口时候可能需要进行判断条件的拼接，而and方法相当于式使用&&来拼接两个判断条件
+例如：打印作家中年龄大于17并且姓名的长度大于1的作家
+```java
+List<Author> authors = getAuthors();
+
+        // 方法一
+        authors.stream()
+                .filter(author -> author.getAge() > 17 && author.getName().length() > 1)
+                .forEach(author -> System.out.println(author.getAge() + ":::" + author.getName()));
+
+        // 方法二
+        authors.stream()
+                .filter(new Predicate<Author>() {
+                    @Override
+                    public boolean test(Author author) {
+                        return author.getAge() > 17;
+                    }
+                }.and(new Predicate<Author>() {
+                    @Override
+                    public boolean test(Author author) {
+                        return author.getName().length() > 1;
+                    }
+                }))
+                .forEach(s -> System.out.println(s.getName() + ":::" + s.getAge()));
+```
+### or 
+  我们在使用`Predicate`接口的时候可能需要进行判断条件的拼接。而for方法相当于是使用||来拼接两个判断条件。
+例如：打印作家中年龄大于17或者姓名的长度大于2的作家。
+```java
+authors.stream()
+                .filter(new Predicate<Author>() {
+                    @Override
+                    public boolean test(Author author) {
+                        return author.getAge() > 17;
+                    }
+                }.or(new Predicate<Author>() {
+                    @Override
+                    public boolean test(Author author) {
+                        return author.getName().length() < 2;
+                    }
+                }))
+                .forEach(s -> System.out.println(s.getName())); 
+```
+### negate
+  `Predicate`接口中的方法。negate方法相当于是在判断前面加！表示取反
+例如：打印作家中年龄不大于17的作家。
+```java
+ List<Author> authors = getAuthors();
+        authors.stream()
+                .filter(new Predicate<Author>() {
+                    @Override
+                    public boolean test(Author author) {
+                        return author.getAge() > 17;
+                    }
+                }.negate())
+                .forEach(s -> System.out.println(s.getAge()));
+```
+# 方法引用(语法糖)
+    暂不考虑什么时候用方法引用，用哪种方法引用，方法引用的格式是什么，只需要在写完lamdba方法发现方法体只有一行代码，并且是方法的调用的时候用
+    快捷键尝试是否能够转换成方法引用即可`Alt+enter`
+## 引用类的静态方法
+### 基本格式
+    类名(对象名)::方法名
+<font color=red>**使用前提：如果我们在重写方法的时候，方法体*只有一行代码*，并且这个代码是*调用了某个类的静态方法*，并且我们要把
+要重写的*抽象方法中所以的参数都按照顺序传入了这个静态方法中*，这个时候我们就可以引用类的静态方法**</font>
+
+例如：如以下代码就可以用方法引用进行简化
+```java
+List<Author> authors = getAuthors();
+Stream<Author> authorStream = authors.stream();
+authorStream.map(author -> author.getAge())
+            .map(age -> String.valueOf(age));
+```
+优化如下：
+```java
+List<Author> authors = getAuthors();
+Stream<Author> authorStream = authors.stream();
+authorStream.map(author -> author.getAge())
+            .map(String::valueOf);
+```
+## 引用对象的实例方法
+### 格式
+    对象名::方法名
+<font color="red">使用前提：如果我们在重写方法的时候，方法体中*只有一行代码*，并且这行代码是*调用了某个对象的成员方法*，并且我们把要重写的*抽象方法中所有的参数都按照顺序传入
+这个成员方法中*，这个时候我们就可以引用对象的实例方法</font>
+例如：
+```java
+List<Author> author = getAuthors();
+Stream<Author> authorStream = authors.stream();
+StringBuilder sb = new StringBuilder();
+authorStream.map(author -> author.getName())
+            .forEach(name -> sb.append(name));
+```
+优化如下：
+```java
+List<Author> author = getAuthors();
+Stream<Author> authorStream = authors.stream();
+StringBuilder sb = new StringBuilder();
+authorStream.map(author -> author.getName())
+            .forEach(sb::append);
+```
+## 引用类的实例方法
+### 格式
+    类名::方法名
+<font color=red>如果我们在重写方法的时候，方法体中*只有一行代码*，并且这行代码是*调用了第一个参数的成员方法*，并且我们把要*重写的抽象方法中剩余的所有的参数都按照顺序传入了这个成员方法中*，
+这个时候我们就可以引用类的实例方法。</font>
+例如：
+```java
+    interface UseString{
+        String use(String str,int start,int length);
+    }
+
+    public static String subAuthorName(String str,UseString useString){
+        int start = 0;
+        int length = 1;
+        return useString.use(str,start,length);
+    }
+
+
+    public static void main(String[] args) {
+        subAuthorName("三更草堂", new UseString() {
+            @Override
+            public String use(String str, int start, int length) {
+                return str.substring(start,length);
+            }
+        });
+    }
+```
+优化后代码如下
+```java
+public static void main(String[] args){
+        subAuthorName("三更草堂",String::substring);
+        } 
+```
+## 构造器引用
+    如果方法体中的一行代码是构造器的话就可以使用构造器引用
+### 格式
+    类名::new
+<font color=red>如果我们在重写方法的时候，方法体中*只有一行代码*，并且这行代码是*调用了某个类的构造方法*，并且我们把*重要的抽象方法中的所有的参数都按照顺序传入了这个构造方法中*,这个时候我们就可以引用构造器。</font>
+例如：
+```java
+List<Author> authors = getAuthors();
+        authors.stream()
+                .map(author -> author.getName())
+                .map(name -> new StringBuilder(name))
+                .map(sb -> sb.append("三更").toString())
+                .forEach(str -> System.out.println(str));
+```
+优化如下：
+```java
+        List<Author> authors1 = getAuthors();
+        authors.stream()
+                .map(Author::getName)
+                .map(StringBuilder::new)
+                .map(sb -> sb.append("三更").toString())
+                .forEach(System.out::println);
+```
+# 高级用法
+## 基本数据类型优化
+我们之前用到的很多Stream的方法由于都使用了泛型。所以涉及到的参数和返回值都是引用数据类型.即使我们操作的是整数小数，但是实际用的都是他们的包装类。IDK5中引入的自动装箱和自动拆箱让我们在使用对应的包装类时就好像电用基本教把类型一样方便，但是你一定要知道发箱和拆箱肯定是要消样时间的。虽然这个时间消耗很下。但是在大量的数据不断的重复生箱拆箱的时候，你就不能无视这个时间损耗了
+
+所以为了让我们能够对这部分的时间消耗进行优化。 Stream还提供了很多专门针对基本数据类型的方法。
+例如:   ```mapToInt,mapToLong,mapToDouble,flatMapToInt,flatMapToDouble等```
+```java
+  List<Author> authors = getAuthors();
+        authors.stream()
+                .map(Author::getAge)
+                .map(age -> age + 10)
+                .filter(age -> age > 18)
+                .map(age -> age +2)
+                .forEach(System.out::println);
+
+        // 优化以上操作
+        authors.stream()
+        .mapToInt(Author::getAge)
+        .map(age -> age + 10)
+        .filter(age -> age > 18)
+        .map(age -> age +2)
+        .forEach(System.out::println);
+```
+## 并行流
+当流中有大量元系时，我们可以使用并行流去提高深作的政露，其实并行流就是把任务分配给多个线程去完全。如果我们自己去用代码实现的话其实会非常的复杂，并且要求你对并发编程有足够的理解和认识。而如果我们使用Stream的话，我们只需要修改一个方法的谢用就可以使用并行流来帮我们实现，从而提高效率。
+    `parallel`方法可以把串行流转换成并行流
+
+```java
+Stream<Integer> stream = Stream.of(1,2,3,4,5,6,7,8,9,10);
+//        // 串行流(数据量少)
+//        Integer integer = stream
+//                .filter(num -> num > 5)
+//                .reduce((result, ele) -> result + ele)
+//                .get();
+//        System.out.println(integer);
+
+        // 并行流
+        System.out.println("并行流");
+        Integer integer1 = stream
+                // 并行
+                .parallel()
+                // 调试方法
+                .peek(new Consumer<Integer>() {
+                    @Override
+                    public void accept(Integer integer) {
+                        System.out.println(integer + ":" +Thread.currentThread().getName());
+                    }
+                })
+                .filter(num -> num > 5)
+                .reduce((result, ele) -> result + ele)
+                .get();
+        System.out.println(integer1);
+```
+也可以通过`parallelStream`直接获取并行流
+```java
+  List<Author> authors = getAuthors();
+        authors.parallelStream()
+                .map(Author::getAge)
+                .map(age -> age + 10)
+                .filter(age -> age > 18)
+                .map(age -> age +2)
+                .forEach(System.out::println);
+```

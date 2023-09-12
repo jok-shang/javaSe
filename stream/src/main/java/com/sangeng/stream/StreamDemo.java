@@ -3,6 +3,9 @@ package com.sangeng.stream;
 import javax.sound.midi.Soundbank;
 import java.util.*;
 import java.util.function.BinaryOperator;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -15,8 +18,36 @@ public class StreamDemo {
     public static void main(String[] args) {
 
 
-        // 使用reduce求所有作者中年龄的最小值
-        test26();
+
+        //并行流
+        test28();
+/*        // 高级用法
+        test27();*/
+
+/*        // 构造器引用
+        List<Author> authors = getAuthors();
+        authors.stream()
+                .map(author -> author.getName())
+                .map(name -> new StringBuilder(name))
+                .map(sb -> sb.append("三更").toString())
+                .forEach(str -> System.out.println(str));
+
+        // 构造器引用 优化
+        List<Author> authors1 = getAuthors();
+        authors.stream()
+                .map(Author::getName)
+                .map(StringBuilder::new)
+                .map(sb -> sb.append("三更").toString())
+                .forEach(System.out::println);*/
+
+/*        // 打印作家中年龄不大于17的作家。
+        testNegate();*/
+/*        // 打印作家中年龄大于17或者姓名的长度大于2的作家。
+        testOr();*/
+/*        //打印作家中年龄大于17并且姓名的长度大于1的作家
+        testAnd();*/
+/*        // 使用reduce求所有作者中年龄的最小值
+        test26();*/
 /*        // 使用reduce求所有作者中年龄的最小值
         test25();*/
 /*        // 使用reduce求所有作者中年龄的最大值
@@ -76,6 +107,110 @@ public class StreamDemo {
         */
 
 
+    }
+
+    // 并行流
+    private static void test28() {
+        Stream<Integer> stream = Stream.of(1,2,3,4,5,6,7,8,9,10);
+//        // 串行流(数据量少)
+//        Integer integer = stream
+//                .filter(num -> num > 5)
+//                .reduce((result, ele) -> result + ele)
+//                .get();
+//        System.out.println(integer);
+
+        // 并行流
+        System.out.println("并行流");
+        Integer integer1 = stream
+                // 并行
+                .parallel()
+                // 调试方法
+                .peek(new Consumer<Integer>() {
+                    @Override
+                    public void accept(Integer integer) {
+                        System.out.println(integer + ":" +Thread.currentThread().getName());
+                    }
+                })
+                .filter(num -> num > 5)
+                .reduce((result, ele) -> result + ele)
+                .get();
+        System.out.println(integer1);
+    }
+
+    // 高级用法
+    private static void test27() {
+        List<Author> authors = getAuthors();
+//        authors.stream()
+//                .map(Author::getAge)
+//                .map(age -> age + 10)
+//                .filter(age -> age > 18)
+//                .map(age -> age +2)
+//                .forEach(System.out::println);
+
+        // 优化以上操作
+        authors.stream()
+                .mapToInt(Author::getAge)
+                .map(age -> age + 10)
+                .filter(age -> age > 18)
+                .map(age -> age +2)
+                .forEach(System.out::println);
+    }
+
+    // 打印作家中年龄不大于17的作家。
+    private static void testNegate() {
+        List<Author> authors = getAuthors();
+        authors.stream()
+                .filter(new Predicate<Author>() {
+                    @Override
+                    public boolean test(Author author) {
+                        return author.getAge() > 17;
+                    }
+                }.negate())
+                .forEach(s -> System.out.println(s.getAge()));
+    }
+
+    // 打印作家中年龄大于17或者姓名的长度小于2的作家。
+    private static void testOr() {
+        List<Author> authors = getAuthors();
+        authors.stream()
+                .filter(new Predicate<Author>() {
+                    @Override
+                    public boolean test(Author author) {
+                        return author.getAge() > 17;
+                    }
+                }.or(new Predicate<Author>() {
+                    @Override
+                    public boolean test(Author author) {
+                        return author.getName().length() < 2;
+                    }
+                }))
+                .forEach(s -> System.out.println(s.getName()));
+
+    }
+
+    // 打印作家中年龄大于17并且姓名的长度大于1的作家
+    private static void testAnd() {
+        List<Author> authors = getAuthors();
+
+        // 方法一
+        authors.stream()
+                .filter(author -> author.getAge() > 17 && author.getName().length() > 1)
+                .forEach(author -> System.out.println(author.getAge() + ":::" + author.getName()));
+
+        // 方法二
+        authors.stream()
+                .filter(new Predicate<Author>() {
+                    @Override
+                    public boolean test(Author author) {
+                        return author.getAge() > 17;
+                    }
+                }.and(new Predicate<Author>() {
+                    @Override
+                    public boolean test(Author author) {
+                        return author.getName().length() > 1;
+                    }
+                }))
+                .forEach(s -> System.out.println(s.getName() + ":::" + s.getAge()));
     }
 
     // 使用reduce求所有作者中年龄的最小值
@@ -343,7 +478,7 @@ public class StreamDemo {
         Author author = new Author(1L,"蒙多",33,"一个从菜刀中明悟哲理的祖安人",null);
         Author author2 = new Author(2L,"亚拉索",15,"狂风也追逐不上他的思考速度",null);
         Author author3 = new Author(3L,"易",14,"是这个世界在限制他的思维",null);
-        Author author4 = new Author(3L,"易",14,"是这个世界在限制他的思维",null);
+        Author author4 = new Author(4L,"易",14,"是这个世界在限制他的思维",null);
 
         //书籍列表
         List<Book> books1 = new ArrayList<>();
@@ -354,12 +489,12 @@ public class StreamDemo {
         books1.add(new Book(2L,"一个人不能死在同一把刀下","个人成长,爱情",99,"讲述如何从失败中明悟真理"));
 
         books2.add(new Book(3L,"那风吹不到的地方","哲学",85,"带你用思维去领略世界的尽头"));
-        books2.add(new Book(3L,"那风吹不到的地方","哲学",85,"带你用思维去领略世界的尽头"));
-        books2.add(new Book(4L,"吹或不吹","爱情,个人传记",56,"一个哲学家的恋爱观注定很难把他所在的时代理解"));
+        books2.add(new Book(4L,"那风吹不到的地方","哲学",85,"带你用思维去领略世界的尽头"));
+        books2.add(new Book(5L,"吹或不吹","爱情,个人传记",56,"一个哲学家的恋爱观注定很难把他所在的时代理解"));
 
-        books3.add(new Book(5L,"你的剑就是我的剑","爱情",56,"无法想象一个武者能对他的伴侣这么的宽容"));
-        books3.add(new Book(6L,"风与剑","个人传记",100,"两个哲学家灵魂和肉体的碰撞会激起怎么样的火花呢？"));
-        books3.add(new Book(6L,"风与剑","个人传记",100,"两个哲学家灵魂和肉体的碰撞会激起怎么样的火花呢？"));
+        books3.add(new Book(6L,"你的剑就是我的剑","爱情",56,"无法想象一个武者能对他的伴侣这么的宽容"));
+        books3.add(new Book(7L,"风与剑","个人传记",100,"两个哲学家灵魂和肉体的碰撞会激起怎么样的火花呢？"));
+        books3.add(new Book(8L,"风与剑","个人传记",100,"两个哲学家灵魂和肉体的碰撞会激起怎么样的火花呢？"));
 
         author.setBooks(books1);
         author2.setBooks(books2);
